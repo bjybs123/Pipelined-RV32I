@@ -23,6 +23,7 @@
 module EX_MEM(
 	input clk, 
 	input reset_n,
+	input [19:0] EX_PCplus4,
 	input EX_cntl_MemWrite,
     input EX_cntl_RegWrite,
     input EX_cntl_MemRead,
@@ -31,6 +32,7 @@ module EX_MEM(
     input [31:0] EX_ALUResult,
     input [4:0] EX_WriteRegNum,
     input [31:0] EX_WriteMemData,
+    output reg [19:0] MEM_PCplus4,
     output reg MEM_cntl_MemWrite,
     output reg MEM_cntl_RegWrite,
     output reg MEM_cntl_MemRead,
@@ -43,6 +45,7 @@ module EX_MEM(
     
     always @ (posedge clk or negedge reset_n) begin
     	if (!reset_n) begin
+    		MEM_PCplus4 <= 0;
     		MEM_cntl_MemWrite <= 0;
     		MEM_cntl_RegWrite <= 0;
     		MEM_cntl_MemRead <= 0;
@@ -53,6 +56,7 @@ module EX_MEM(
     		MEM_WriteMemData <= 0;
     	end
     	else begin
+    		MEM_PCplus4 <= EX_PCplus4;
     		MEM_cntl_MemWrite <= EX_cntl_MemWrite;
     		MEM_cntl_RegWrite <= EX_cntl_RegWrite;
     		MEM_cntl_MemRead <= EX_cntl_MemRead;

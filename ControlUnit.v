@@ -29,7 +29,7 @@ module ControlUnit(
     output ID_cntl_Branch,
     output [2:0] ID_sel_MemToReg,      //000: ALUResult, 001: DMemReadData_width, 010: immediate, 011: branchAddr, 100: PC + 4
     output [1:0] ID_sel_ALUSrc,        //00: ReadData2, 01: immediate, 10: shamt
-    output [1:0] ID_sel_jump,
+    output [1:0] ID_sel_jump,			//01: JALR, 10: JAL
     output [3:0] ID_ALUOp
     );
     assign ID_cntl_MemRead = (opcode == 7'b000_0011) ? 1'b1 : 1'b0;

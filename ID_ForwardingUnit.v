@@ -38,7 +38,7 @@ module ID_ForwardingUnit(
 	wire MEM_ForwardA;
 	wire MEM_ForwardB;
     
-    assign WB_ForwardA = 	((ID_opcode == 7'b1100011) &&
+    assign WB_ForwardA = 	(((ID_opcode == 7'b1100011) || (ID_opcode == 7'b1100111)) &&
     						(WB_cntl_RegWrite) && 
     						(WB_WriteRegNum != 0) && 
     						(WB_WriteRegNum == EX_ReadRegNum1)) ? 1'b1 : 1'b0;
@@ -48,7 +48,7 @@ module ID_ForwardingUnit(
     						(WB_WriteRegNum != 0) && 
     						(WB_WriteRegNum == EX_ReadRegNum2)) ? 1'b1 : 1'b0;
     
-    assign MEM_ForwardA = 	((ID_opcode == 7'b1100011) &&
+    assign MEM_ForwardA = 	(((ID_opcode == 7'b1100011) || (ID_opcode == 7'b1100111)) &&
     						(MEM_cntl_RegWrite) && 
     						(MEM_WriteRegNum != 0) && 
     						(MEM_WriteRegNum == EX_ReadRegNum1)) ? 1'b1 : 1'b0;

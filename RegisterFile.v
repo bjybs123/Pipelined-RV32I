@@ -37,7 +37,7 @@ module RegisterFile(
     integer i;
     initial begin
         regs[0] <= 32'h0000_0000;
-        regs[1] <= 32'h0000_0000;
+        regs[1] <= 32'h0000_00FF;
         regs[2] <= 32'h0000_0000;
         regs[3] <= 32'h0000_0000;
         for (i = 4; i < 32; i = i + 1) begin

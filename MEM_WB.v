@@ -23,12 +23,14 @@
 module MEM_WB(
 	input clk, 
 	input reset_n,
+	input [19:0] MEM_PCplus4,
     input MEM_cntl_RegWrite,
     input [2:0] MEM_sel_MemToReg,      	//000: ALUResult, 001: DMemReadData_width, 010: immediate, 011: branchAddr, 100: PC + 4
     input [2:0] MEM_funct,
     input [31:0] MEM_ReadMemData,
     input [31:0] MEM_ALUResult,
     input [4:0] MEM_WriteRegNum,
+    output reg [19:0] WB_PCplus4,
     output reg WB_cntl_RegWrite,
     output reg [2:0] WB_sel_MemToReg,      	//000: ALUResult, 001: DMemReadData_width, 010: immediate, 011: branchAddr, 100: PC + 4
     output reg [2:0] WB_funct,
@@ -39,6 +41,7 @@ module MEM_WB(
     
     always @ (posedge clk or negedge reset_n) begin
     	if (!reset_n) begin
+    		WB_PCplus4 <= 0;
     		WB_cntl_RegWrite <= 0;
     		WB_sel_MemToReg <= 0;
     		WB_funct <= 0;
@@ -47,6 +50,7 @@ module MEM_WB(
     		WB_WriteRegNum <= 0;
     	end
     	else begin
+    		WB_PCplus4 <= MEM_PCplus4;
     		WB_cntl_RegWrite <= MEM_cntl_RegWrite;
     		WB_sel_MemToReg <= MEM_sel_MemToReg;
     		WB_funct <= MEM_funct;

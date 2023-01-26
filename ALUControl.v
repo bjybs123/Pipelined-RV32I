@@ -157,24 +157,6 @@ module ALUControl(
                     end
                 endcase
             end
-            //LUI
-            4'b0101: begin
-                ALUcntl <= 4'bxxxx;
-            end
-            /*
-            //BEQ, BNE, BLT, BGE, BLTU, BGEU
-            4'b0110: begin
-                ALUcntl <= SUB;
-            end
-            //JALR
-            4'b0111: begin
-                ALUcntl <= ADD;
-            end
-            //JAL
-            4'b1000: begin
-                ALUcntl <= 4'bxxxx;
-            end
-            */
             default: begin
                 ALUcntl <= 4'bxxxx;
             end
