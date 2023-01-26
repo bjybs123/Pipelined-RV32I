@@ -27,14 +27,15 @@ module RV32I(
     
     /* IF STAGE wires */
     wire PCWrite;
+    wire IF_IDWrite;
+    wire IF_IDFlush;
     wire [19:0] IF_PCplus4;
     wire [19:0] nextPC;
     wire [19:0] IF_PC;
     wire [31:0] IF_Instr;
     
     /* ID STAGE wires */
-    wire IF_IDWrite;
-    wire IF_IDFlush;
+    wire ID_EXFlush;
     wire [19:0] ID_PC;
     wire [19:0] ID_PCplus4;
     wire [31:0] ID_Instr;
@@ -43,7 +44,6 @@ module RV32I(
     wire [31:0] ID_ReadRegData2;
     wire [19:0] ID_BranchAddr;
     wire [19:0] ID_JalrAddr;
-    wire ID_ExeBranch;
     
     wire ID_cntl_MemWrite;
     wire ID_cntl_MemRead;
@@ -74,6 +74,7 @@ module RV32I(
     wire [4:0] EX_ReadRegNum2;
     wire [31:0] EX_ReadRegData1;
     wire [31:0] EX_ReadRegData2;
+    wire [19:0] EX_BranchAddr;
     wire [31:0] EX_immediate;
     wire [31:0] EX_ALUResult;
     wire [4:0] EX_WriteRegNum;
@@ -97,6 +98,8 @@ module RV32I(
     wire [4:0] MEM_WriteRegNum;
     wire [31:0] MEM_WriteMemData;
     wire [31:0] MEM_WidthControlled_WriteMemData;
+    wire [19:0] MEM_BranchAddr;
+    wire [31:0] MEM_immediate;
     
     /* WB STAGE wires */
     wire [19:0] WB_PCplus4;
@@ -108,6 +111,8 @@ module RV32I(
     wire [31:0] WB_ALUResult;
     wire [31:0] WB_WriteRegData;
     wire [4:0] WB_WriteRegNum;
+    wire [19:0] WB_BranchAddr;
+    wire [31:0] WB_immediate;
     
     
     /* IF STAGE */
@@ -141,8 +146,8 @@ module RV32I(
 	
     /* ID/EX register */
     ID_EX ID_EX(.clk(clk), .reset_n(reset_n), .ID_EXFlush(ID_EXFlush),
-    			.ID_opcode(ID_Instr[6:0]), .ID_PCplus4(ID_PCplus4), .ID_cntl_MemWrite(ID_cntl_MemWrite), .ID_cntl_MemRead(ID_cntl_MemRead), .ID_cntl_RegWrite(ID_cntl_RegWrite), .ID_sel_MemToReg(ID_sel_MemToReg), .ID_sel_ALUSrc(ID_sel_ALUSrc), .ID_funct({ID_Instr[30], ID_Instr[14:12]}), .ID_ALUOp(ID_ALUOp), .ID_ReadRegNum1(ID_Instr[19:15]), .ID_ReadRegNum2(ID_Instr[24:20]), .ID_WriteRegNum(ID_Instr[11:7]), .ID_ReadRegData1(ID_ReadRegData1), .ID_ReadRegData2(ID_ReadRegData2), .ID_immediate(ID_immediate),
-    			.EX_opcode(EX_opcode), .EX_PCplus4(EX_PCplus4), .EX_cntl_MemWrite(EX_cntl_MemWrite), .EX_cntl_MemRead(EX_cntl_MemRead), .EX_cntl_RegWrite(EX_cntl_RegWrite), .EX_sel_MemToReg(EX_sel_MemToReg), .EX_sel_ALUSrc(EX_sel_ALUSrc), .EX_funct(EX_funct), .EX_ALUOp(EX_ALUOp), .EX_ReadRegNum1(EX_ReadRegNum1), .EX_ReadRegNum2(EX_ReadRegNum2), .EX_WriteRegNum(EX_WriteRegNum), .EX_ReadRegData1(EX_ReadRegData1), .EX_ReadRegData2(EX_ReadRegData2), .EX_immediate(EX_immediate));
+    			.ID_opcode(ID_Instr[6:0]), .ID_PCplus4(ID_PCplus4), .ID_BranchAddr(ID_BranchAddr), .ID_cntl_MemWrite(ID_cntl_MemWrite), .ID_cntl_MemRead(ID_cntl_MemRead), .ID_cntl_RegWrite(ID_cntl_RegWrite), .ID_sel_MemToReg(ID_sel_MemToReg), .ID_sel_ALUSrc(ID_sel_ALUSrc), .ID_funct({ID_Instr[30], ID_Instr[14:12]}), .ID_ALUOp(ID_ALUOp), .ID_ReadRegNum1(ID_Instr[19:15]), .ID_ReadRegNum2(ID_Instr[24:20]), .ID_WriteRegNum(ID_Instr[11:7]), .ID_ReadRegData1(ID_ReadRegData1), .ID_ReadRegData2(ID_ReadRegData2), .ID_immediate(ID_immediate),
+    			.EX_opcode(EX_opcode), .EX_PCplus4(EX_PCplus4), .EX_BranchAddr(EX_BranchAddr), .EX_cntl_MemWrite(EX_cntl_MemWrite), .EX_cntl_MemRead(EX_cntl_MemRead), .EX_cntl_RegWrite(EX_cntl_RegWrite), .EX_sel_MemToReg(EX_sel_MemToReg), .EX_sel_ALUSrc(EX_sel_ALUSrc), .EX_funct(EX_funct), .EX_ALUOp(EX_ALUOp), .EX_ReadRegNum1(EX_ReadRegNum1), .EX_ReadRegNum2(EX_ReadRegNum2), .EX_WriteRegNum(EX_WriteRegNum), .EX_ReadRegData1(EX_ReadRegData1), .EX_ReadRegData2(EX_ReadRegData2), .EX_immediate(EX_immediate));
     
     /* EX STAGE */
     ALUControl ALUControl(.funct(EX_funct), .ALUOp(EX_ALUOp), .ALUcntl(EX_ALUCntl));
@@ -163,8 +168,8 @@ module RV32I(
     
     /* EX/MEM register */
     EX_MEM EX_MEM(.clk(clk), .reset_n(reset_n),
-    				.EX_PCplus4(EX_PCplus4), .EX_cntl_MemWrite(EX_cntl_MemWrite), .EX_cntl_MemRead(EX_cntl_MemRead), .EX_cntl_RegWrite(EX_cntl_RegWrite), .EX_sel_MemToReg(EX_sel_MemToReg), .EX_funct(EX_funct[2:0]), .EX_ALUResult(EX_ALUResult), .EX_WriteMemData(EX_ReadRegData2), .EX_WriteRegNum(EX_WriteRegNum),
-    				.MEM_PCplus4(MEM_PCplus4), .MEM_cntl_MemWrite(MEM_cntl_MemWrite), .MEM_cntl_MemRead(MEM_cntl_MemRead), .MEM_cntl_RegWrite(MEM_cntl_RegWrite), .MEM_sel_MemToReg(MEM_sel_MemToReg), .MEM_funct(MEM_funct), .MEM_ALUResult(MEM_ALUResult), .MEM_WriteMemData(MEM_WriteMemData), .MEM_WriteRegNum(MEM_WriteRegNum));
+    				.EX_PCplus4(EX_PCplus4), .EX_immediate(EX_immediate), .EX_BranchAddr(EX_BranchAddr), .EX_cntl_MemWrite(EX_cntl_MemWrite), .EX_cntl_MemRead(EX_cntl_MemRead), .EX_cntl_RegWrite(EX_cntl_RegWrite), .EX_sel_MemToReg(EX_sel_MemToReg), .EX_funct(EX_funct[2:0]), .EX_ALUResult(EX_ALUResult), .EX_WriteMemData(EX_ReadRegData2), .EX_WriteRegNum(EX_WriteRegNum),
+    				.MEM_PCplus4(MEM_PCplus4), .MEM_immediate(MEM_immediate), .MEM_BranchAddr(MEM_BranchAddr), .MEM_cntl_MemWrite(MEM_cntl_MemWrite), .MEM_cntl_MemRead(MEM_cntl_MemRead), .MEM_cntl_RegWrite(MEM_cntl_RegWrite), .MEM_sel_MemToReg(MEM_sel_MemToReg), .MEM_funct(MEM_funct), .MEM_ALUResult(MEM_ALUResult), .MEM_WriteMemData(MEM_WriteMemData), .MEM_WriteRegNum(MEM_WriteRegNum));
  	
     /* MEM STAGE */
     assign MEM_WidthControlled_WriteMemData = 	(MEM_funct == 3'b000) ? {24'b0, MEM_WriteMemData[7:0]} : 
@@ -175,13 +180,15 @@ module RV32I(
     
     /* MEM/WB register */
 	MEM_WB MEM_WB(.clk(clk), .reset_n(reset_n),
-    				.MEM_PCplus4(MEM_PCplus4), .MEM_cntl_RegWrite(MEM_cntl_RegWrite), .MEM_sel_MemToReg(MEM_sel_MemToReg), .MEM_funct(MEM_funct), .MEM_ReadMemData(MEM_ReadMemData), .MEM_ALUResult(MEM_ALUResult), .MEM_WriteRegNum(MEM_WriteRegNum),
-    				.WB_PCplus4(WB_PCplus4), .WB_cntl_RegWrite(WB_cntl_RegWrite), .WB_sel_MemToReg(WB_sel_MemToReg), .WB_funct(WB_funct), .WB_ReadMemData(WB_ReadMemData), .WB_ALUResult(WB_ALUResult), .WB_WriteRegNum(WB_WriteRegNum));
+    				.MEM_PCplus4(MEM_PCplus4), .MEM_immediate(MEM_immediate), .MEM_BranchAddr(MEM_BranchAddr), .MEM_cntl_RegWrite(MEM_cntl_RegWrite), .MEM_sel_MemToReg(MEM_sel_MemToReg), .MEM_funct(MEM_funct), .MEM_ReadMemData(MEM_ReadMemData), .MEM_ALUResult(MEM_ALUResult), .MEM_WriteRegNum(MEM_WriteRegNum),
+    				.WB_PCplus4(WB_PCplus4), .WB_immediate(WB_immediate), .WB_BranchAddr(WB_BranchAddr), .WB_cntl_RegWrite(WB_cntl_RegWrite), .WB_sel_MemToReg(WB_sel_MemToReg), .WB_funct(WB_funct), .WB_ReadMemData(WB_ReadMemData), .WB_ALUResult(WB_ALUResult), .WB_WriteRegNum(WB_WriteRegNum));
 
     /* WB STAGE */
     WidthControl WidthControl(.funct(WB_funct), .word(WB_ReadMemData), .OutputWord(WB_WidthControlled_ReadMemData));
     assign WB_WriteRegData = 	(WB_sel_MemToReg == 3'b000) ? WB_ALUResult : 
     							(WB_sel_MemToReg == 3'b001) ? WB_WidthControlled_ReadMemData :
+    							(WB_sel_MemToReg == 3'b010) ? WB_immediate :
+    							(WB_sel_MemToReg == 3'b011) ? WB_BranchAddr :
     							(WB_sel_MemToReg == 3'b100) ? WB_PCplus4 : 32'hxxxx_xxxx;
     
 endmodule

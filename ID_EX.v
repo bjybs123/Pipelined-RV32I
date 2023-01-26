@@ -26,6 +26,7 @@ module ID_EX(
 	input ID_EXFlush,
 	input [6:0] ID_opcode,
 	input [19:0] ID_PCplus4,
+	input [19:0] ID_BranchAddr,
 	input ID_cntl_MemWrite,
 	input ID_cntl_MemRead,
     input ID_cntl_RegWrite,
@@ -41,6 +42,7 @@ module ID_EX(
     input [31:0] ID_immediate,
     output reg [6:0] EX_opcode,
     output reg [19:0] EX_PCplus4,
+    output reg [19:0] EX_BranchAddr,
     output reg EX_cntl_MemWrite,
     output reg EX_cntl_MemRead,
     output reg EX_cntl_RegWrite,
@@ -60,6 +62,7 @@ module ID_EX(
     	if(!reset_n) begin
     		EX_opcode <= 0;
     		EX_PCplus4 <= 0;
+    		EX_BranchAddr <= 0;
     		EX_cntl_MemWrite <= 0;
     		EX_cntl_MemRead <= 0;
     		EX_cntl_RegWrite <=  0;
@@ -78,6 +81,7 @@ module ID_EX(
     		if (ID_EXFlush) begin
     			EX_opcode <= 0;
     			EX_PCplus4 <= 0;
+    			EX_BranchAddr <= 0;
     			EX_cntl_MemWrite <= 0;
     			EX_cntl_MemRead <= 0;
 				EX_cntl_RegWrite <= 0;
@@ -95,6 +99,7 @@ module ID_EX(
     		else begin
     			EX_opcode <= ID_opcode;
     			EX_PCplus4 <= ID_PCplus4;
+    			EX_BranchAddr <= ID_BranchAddr;
     			EX_cntl_MemWrite <= ID_cntl_MemWrite;
     			EX_cntl_MemRead <= ID_cntl_MemRead;
 				EX_cntl_RegWrite <= ID_cntl_RegWrite;
